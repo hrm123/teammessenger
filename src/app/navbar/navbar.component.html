@@ -1,0 +1,15 @@
+<div class="navBar">
+    <div class="logo"></div>
+    <div class="heading"><a routerLink="/">teamIM</a></div>
+    <div class="links">
+        <span>
+            <a *ngIf="!uid" href="#" routerLink="/signon">Logon</a>
+        </span>
+        <span>
+            <span id="userEmail" *ngIf="uid">Hi, {{userEmail}}</span>
+        </span>
+        <span>
+            <a *ngIf="uid" href="#" (click)="signout()">Logoff</a>
+        </span>
+    </div>
+</div>
