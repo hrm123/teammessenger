@@ -22,6 +22,7 @@ import { NavbarComponent } from './navbar/navbar.component';
 import { UserListComponent } from './user-list/user-list.component';
 import { UserItemComponent } from './user-item/user-item.component';
 import { AuthGuardService } from './services/auth-guard.service';
+import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -46,7 +47,8 @@ import { AuthGuardService } from './services/auth-guard.service';
   ],
   providers: [AuthService, ChatService, 
     AngularFireModule, AngularFireAuthModule,
-    AngularFireDatabaseModule, AuthGuardService],
+    AngularFireDatabaseModule, AuthGuardService,
+    {provide: LocationStrategy, useClass: HashLocationStrategy} ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
