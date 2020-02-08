@@ -18,7 +18,7 @@ export class NavbarComponent implements OnInit {
   ngOnInit() {
     this.user = this.authSvc.authUser();
     this.user.subscribe( user =>{
-      debugger;
+
       if(user){
         this.userEmail = user.email;
         this.uid = user.uid;
@@ -28,6 +28,7 @@ export class NavbarComponent implements OnInit {
 
   
   signout() {
+
     this.authSvc.signout();
   }
 }

@@ -1,7 +1,7 @@
 export class User{
-    uid? : string;
-    email? : string;
-    username? : string;
-    password? : string;
-    status?: string;
+    public uid? : string;
+    public email? : string;
+    public username? : string;
+    public password? : string;
+    public status?: string;
 }

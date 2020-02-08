@@ -23,18 +23,15 @@ export class SignupFormComponent implements OnInit {
   }
 
   signUp(){
-    
+
     this.authSvc.signUp(this.email, this.password, this.displayName)
       .then(resolve => {
-        debugger;
         this.router.navigate(['chat']);
         
       }, (err) => {
-        debugger;
         this.errorMsg = err.message;
       })
       .catch(error => {
-        debugger;
         this.errorMsg = error.message;
       });
   }

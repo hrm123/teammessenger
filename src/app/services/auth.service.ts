@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import * as fb from 'firebase/app';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { User } from '../models/user.model';
 import { AngularFireDatabase, AngularFireList } from '@angular/fire/database';
 import {AngularFireAuth} from '@angular/fire/auth';
-import { first } from 'rxjs/operators';
+import { first, map, filter } from 'rxjs/operators';
 
 
 @Injectable({
@@ -15,7 +15,7 @@ export class AuthService {
 
   private user : Observable<fb.User>;
   private authState : any;
-  // usr : User;
+  modelUser : User;
   
   constructor(private router: Router,
     private afAuth : AngularFireAuth,
@@ -33,13 +33,48 @@ export class AuthService {
     }
 
   get currentUserId() : string {
-    debugger;
+
     return (this.authState !== null && this.authState.user !== null) 
-       ?  this.authState.uid : '';
+       ?  this.authState.user.uid : '';
+  }
+
+
+  convertToUser(obj){
+
+    this.modelUser = obj;
+    
+  }
+
+  getUser() {
+    const clientId = this.authState.user.uid;
+    if(clientId){
+
+      const path = `/users/${clientId}`;
+       return this.db.object(path).valueChanges().subscribe( obj => this.convertToUser(obj))
+    } else{
+      console.error("invalid user: " + clientId);
+    }
+    
+  }
+
+  
+  setUserStatus(status){
+    const path = `users/${this.currentUserId}`;
+
+    if(this.authState.user.uid === null){
+
+      return Promise.reject("Invalid clientid in setUserStatus method.");;
+    }
+    const data = {
+      status
+    };
+
+    return this.db.object(path).update(data);
+      // .catch(err => console.log("updateUserStatus error : " + err));
   }
 
   setUserData(email: string, displayName: string, status: string) : void{
-    debugger;
+
     const path = `users/${this.currentUserId}`;
 
     if(this.authState.user.uid === null){
@@ -55,19 +90,6 @@ export class AuthService {
       .catch(err => console.log(err));
   }
 
-  setUserStatus(status: string) : void{
-    const path = `users/${this.currentUserId}`;
-
-    if(this.authState.uid === null){
-      return;
-    }
-    const data = {
-      status
-    };
-
-    this.db.object(path).update(data)
-      .catch(err => console.log(err));
-  }
 
   removeSpecialChars(email : string): string{
     return email.replace('.','dot')
@@ -79,10 +101,16 @@ export class AuthService {
 
   signUp(email: string,password : string, displayName : string){
     const validEmail = this.removeSpecialChars(email);
-    debugger;
+
     return this.afAuth.auth.createUserWithEmailAndPassword(email, password)
         .then((user) => {
-          debugger;
+
+
+          this.getUser();
+          // this.usr.email = email;
+          // this.usr.password = password;
+          // this.usr.username = displayName;
+      
           this.authState = user;
           const status = 'online';
           this.setUserData(validEmail, displayName, status);
@@ -94,19 +122,56 @@ export class AuthService {
   }
 
   
+
   signout() {
-    this.afAuth.auth.signOut();
+    try{
+
+      /*
+      this.afAuth.auth
+      // You only want unathenticated states:
+        .onAuthStateChanged((user) => {
+          if(!user){
+            this.router.navigate(['signon']);
+          }
+        });
+        */
+      this.setUserStatus('offline').then(res => {
+
+        this.afAuth.auth.signOut();
+      }).catch(err => {
+
+         console.log(err)
+      }
+      );
+    }
+    catch(e){
+
+      console.error('signout' + e);
+    }
+
+    
+    // this.usr.email = '';
+    // this.usr.password = '';
+    // this.usr.username = '';
+
     // this.user = null;
-    this.router.navigate(['login']);
+    
+    
   }
   
   signOn(email: string,password : string){
-debugger;
+
     return this.afAuth.auth.signInWithEmailAndPassword(email, password)
         .then((user) => {
           this.authState = user;
           const status = 'online';
+          // this.setUserData(validEmail, displayName, status);
           this.setUserStatus(status);
+          this.getUser();
+          // this.usr.email = email;
+          // this.usr.password = password;
+          // this.usr.username = displayName;
+
           this.router.navigate(['chat']);
         }).catch(err => console.log(err));
 

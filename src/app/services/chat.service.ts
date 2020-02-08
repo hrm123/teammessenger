@@ -30,6 +30,7 @@ export class ChatService {
       if(auth !== undefined && auth !== null){
         this.user = auth;
         this.getUser().subscribe( (u: any) => {
+
           this.userName = u.displayName;
         });
       }
@@ -39,28 +40,30 @@ export class ChatService {
   }
 
   fbObjToUser(fbObj) : User{
-    debugger;
+
     return null;
   }
 
 
   fblistToUsers(fbList) : User[]{
-    debugger;
+
     return null;
   }
 
   getUser() {
-    const userId = this.user.uid;
-    if(userId){
-      const path = `/users/${userId}`;
-    // this.userObj =  this.db.object(path).snapshotChanges()
-       // .pipe(map(fbObj => this.fbObjToUser(fbObj)));
+    const clientId = this.user.uid;
+    if(clientId){
+
+      const path = `/users/${clientId}`;
        return this.db.object(path).valueChanges();
+    } else{
+      console.error("invalid user: " + clientId);
     }
     
   }
 
   getUsers(){
+
     const userId = this.user.uid;
     const path = `/users`;
     this.usersObj =  this.db.list(path).snapshotChanges()
@@ -89,7 +92,7 @@ export class ChatService {
 
   sendMessage(msg: string){
     const timeSent = this.getTimeStamp();
-    debugger;
+
     const email = ( this.user && this.user.email) || "a@1.com";
     
     /*
