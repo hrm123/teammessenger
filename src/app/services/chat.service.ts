@@ -14,7 +14,7 @@ import * as fb from 'firebase/app';
 })
 export class ChatService {
   user: fb.User;
-  chatMessages: AngularFireList<any>;
+  chatMessages: AngularFireList<any[]>;
   chatMessage: ChatMessage;
   userName: Observable<string>;
   userObj : Observable<User>;
@@ -83,10 +83,11 @@ export class ChatService {
     return (date + ' ' + time + ' ');
   }
 
-  getMessages() : Observable<any>{
+  getMessages() {
     //query to create out message feed binding
-    this.chatMessages  = this.db.list('messages');
-    return this.chatMessages.valueChanges();
+    this.chatMessages =   this.db.list('/messages');
+    return this.chatMessages;
+    // return this.chatMessages.snapshotChanges(); // .valueChanges().subscribe();
 
   }
 
@@ -103,7 +104,7 @@ export class ChatService {
     timeSent? : Date = new Date();
     */
 
-    this.chatMessages.push({
+    this.chatMessages.push(<any>{
       message: msg,
       timeSent,
       userName : this.userName || "ab",

@@ -13,27 +13,43 @@ import { AngularFireList } from '@angular/fire/database';
 export class FeedComponent implements OnInit, OnChanges {
   user: Observable<any>;
   msg: ChatMessage;
-  feed$: AngularFireList<ChatMessage[]>;
-  msgs : any;
+  feed$: AngularFireList<any[]>;
+  msgs : ChatMessage[] = [];
 
 
-  constructor(private chatService: ChatService) { }
+  constructor(private chatService: ChatService) { 
+    
+  }
+  
+  getModelMsgsArray(msgs){
+    var that = this;
+    
+    msgs.forEach(function (msg) {
+      let modelMsg: ChatMessage = new ChatMessage();
+      modelMsg.$key = msg.$key;
+      modelMsg.email = msg.email;
+      modelMsg.message = msg.message;
+      modelMsg.userName = msg.userName;
+      console.log(msg.timeSent);
+      modelMsg.timeSent = new Date();
+      that.msgs.push(modelMsg);
+    });
+  }
+  
 
-  ngOnInit() {
-    // this.feed$ = this.chatService.getMessages();
-    const msgsChannel = this.chatService.getMessages();
-
-    if(msgsChannel){
-      msgsChannel.subscribe((msgs) => {
-      this.msgs = msgs;
-      });
-    }
+  ngOnInit(){
+    this.chatService.getMessages().valueChanges().subscribe(
+      feedMsgs => {
+        debugger;
+        this.getModelMsgsArray(feedMsgs);
+      }
+    );
   }
 
   ngOnChanges(){
-    this.chatService.getMessages().subscribe((msgs) => {
-      this.msgs = msgs;
-  });
+
+    this.feed$ = this.chatService.getMessages();
+
   }
 
 }

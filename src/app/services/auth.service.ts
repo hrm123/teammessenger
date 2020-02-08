@@ -61,7 +61,7 @@ export class AuthService {
   setUserStatus(status){
     const path = `users/${this.currentUserId}`;
 
-    if(this.authState.user.uid === null){
+    if(!this.authState || !this.authState.user ){
 
       return Promise.reject("Invalid clientid in setUserStatus method.");;
     }
@@ -137,12 +137,21 @@ export class AuthService {
         */
       this.setUserStatus('offline').then(res => {
 
-        this.afAuth.auth.signOut();
+        this.afAuth.auth.signOut().then( _ =>{
+          this.router.navigate(['signon']);
+        }).catch(err => console.log('signout error : ' + err));
+
+
+
       }).catch(err => {
 
          console.log(err)
+         this.afAuth.auth.signOut().then( _ =>{
+          this.router.navigate(['signon']);
+        }).catch(err => console.log('signout error : ' + err));
       }
       );
+      
     }
     catch(e){
 
