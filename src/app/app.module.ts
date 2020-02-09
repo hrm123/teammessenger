@@ -7,7 +7,7 @@ import {FormsModule} from  '@angular/forms';
 import {AngularFireModule} from '@angular/fire';
 import {AngularFireAuthModule} from '@angular/fire/auth';
 // import {AngularFireDatabaseModule} from '@angular/fire/database-deprecated';
-import {AngularFireDatabaseModule} from '@angular/fire/database';
+// import {AngularFireDatabaseModule} from '@angular/fire/database';
 import {environment} from '../environments/environment';
 
 import { AuthService } from './services/auth.service';
@@ -23,6 +23,8 @@ import { UserListComponent } from './user-list/user-list.component';
 import { UserItemComponent } from './user-item/user-item.component';
 import { AuthGuardService } from './services/auth-guard.service';
 import { HashLocationStrategy, LocationStrategy, PathLocationStrategy } from '@angular/common';
+import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { AngularFireStorageModule } from '@angular/fire/storage';
 
 @NgModule({
   declarations: [
@@ -43,11 +45,12 @@ import { HashLocationStrategy, LocationStrategy, PathLocationStrategy } from '@a
     AppRoutingModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
-    AngularFireDatabaseModule
+    AngularFirestoreModule,
+    AngularFireStorageModule
   ],
   providers: [AuthService, ChatService, 
     AngularFireModule, AngularFireAuthModule,
-    AngularFireDatabaseModule, AuthGuardService,
+    AuthGuardService,
     {provide: LocationStrategy, useClass: PathLocationStrategy} ],
   bootstrap: [AppComponent]
 })

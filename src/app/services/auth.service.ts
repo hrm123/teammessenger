@@ -3,9 +3,10 @@ import { Router } from '@angular/router';
 import * as fb from 'firebase/app';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { User } from '../models/user.model';
-import { AngularFireDatabase, AngularFireList } from '@angular/fire/database';
+import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import {AngularFireAuth} from '@angular/fire/auth';
 import { first, map, filter } from 'rxjs/operators';
+import { ChatService } from './chat.service';
 
 
 @Injectable({
@@ -19,7 +20,8 @@ export class AuthService {
   
   constructor(private router: Router,
     private afAuth : AngularFireAuth,
-    private db: AngularFireDatabase
+    private afs: AngularFirestore,
+    private chatService : ChatService
     ) { 
       this.user = afAuth.authState;
     }
@@ -46,11 +48,12 @@ export class AuthService {
   }
 
   getUser() {
+    if(!this.authState){
+      return;
+    }
     const clientId = this.authState.user.uid;
     if(clientId){
-
-      const path = `/users/${clientId}`;
-       return this.db.object(path).valueChanges().subscribe( obj => this.convertToUser(obj))
+      return  this.chatService.getUser(clientId).subscribe( obj => this.convertToUser(obj));
     } else{
       console.error("invalid user: " + clientId);
     }
@@ -69,8 +72,7 @@ export class AuthService {
       status
     };
 
-    return this.db.object(path).update(data);
-      // .catch(err => console.log("updateUserStatus error : " + err));
+    return this.chatService.updateUser(this.currentUserId, data);
   }
 
   setUserData(email: string, displayName: string, status: string) : void{
@@ -86,8 +88,7 @@ export class AuthService {
       status
     };
 
-    this.db.object(path).update(data)
-      .catch(err => console.log(err));
+    this.chatService.updateUser(this.currentUserId, data);
   }
 
 
@@ -104,7 +105,9 @@ export class AuthService {
 
     return this.afAuth.auth.createUserWithEmailAndPassword(email, password)
         .then((user) => {
-
+          if(!user){
+            return;
+          }
 
           this.getUser();
           // this.usr.email = email;
@@ -114,6 +117,8 @@ export class AuthService {
           this.authState = user;
           const status = 'online';
           this.setUserData(validEmail, displayName, status);
+          this.chatService.getUsers();
+          
         }).catch(err => console.log(err));
 
 
@@ -181,6 +186,7 @@ export class AuthService {
           // this.usr.password = password;
           // this.usr.username = displayName;
 
+          this.chatService.getUsers();
           this.router.navigate(['chat']);
         }).catch(err => console.log(err));
 

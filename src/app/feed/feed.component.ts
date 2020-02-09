@@ -2,7 +2,7 @@ import { Component, OnInit, OnChanges } from '@angular/core';
 import { ChatService } from '../services/chat.service';
 import { Observable } from 'rxjs';
 import { ChatMessage } from '../models/chat-message.model';
-import { AngularFireList } from '@angular/fire/database';
+import { AngularFirestoreCollection } from '@angular/fire/firestore';
 
 
 @Component({
@@ -13,7 +13,7 @@ import { AngularFireList } from '@angular/fire/database';
 export class FeedComponent implements OnInit, OnChanges {
   user: Observable<any>;
   msg: ChatMessage;
-  feed$: AngularFireList<any[]>;
+  feed$: AngularFirestoreCollection<ChatMessage>;
   msgs : ChatMessage[] = [];
 
 

@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-// import {AngularFireDatabase, FirebaseListObservable}   from '@angular/fire/database-deprecated';
-import { AngularFireDatabase, AngularFireList } from '@angular/fire/database';
+import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import {AngularFireAuth} from '@angular/fire/auth';
 import { ChatMessage } from '../models/chat-message.model';
 import { Observable } from 'rxjs';
@@ -14,14 +13,15 @@ import * as fb from 'firebase/app';
 })
 export class ChatService {
   user: fb.User;
-  chatMessages: AngularFireList<any[]>;
+  chatMessagesRef: AngularFirestoreCollection<ChatMessage>;;
+  chattersRef: AngularFirestoreCollection<User>;;
   chatMessage: ChatMessage;
   userName: Observable<string>;
   userObj : Observable<User>;
   usersObj : Observable<User[]>;
 
   constructor(
-    private db: AngularFireDatabase,
+    private afs: AngularFirestore,
     private afAuth: AngularFireAuth
   ) { 
 
@@ -29,9 +29,12 @@ export class ChatService {
     this.afAuth.authState.subscribe(auth => {
       if(auth !== undefined && auth !== null){
         this.user = auth;
-        this.getUser().subscribe( (u: any) => {
+        this.getUsers();
+        this.getUser(null).subscribe( (u: any) => {
 
-          this.userName = u.displayName;
+          if(u){
+            this.userName = u.displayName;
+          }
         });
       }
     })
@@ -50,25 +53,37 @@ export class ChatService {
     return null;
   }
 
-  getUser() {
-    const clientId = this.user.uid;
+  getUser(userId) {
+    const clientId = userId || this.user.uid;
     if(clientId){
 
-      const path = `/users/${clientId}`;
-       return this.db.object(path).valueChanges();
+      // const path = `/users/${clientId}`;
+       return this.chattersRef.doc(clientId).valueChanges();
     } else{
       console.error("invalid user: " + clientId);
     }
     
   }
 
+  updateUser(userId, fields){
+    const clientId = userId || this.user.uid;
+    if(clientId){
+
+      // const path = `/users/${clientId}`;
+       return this.chattersRef.doc(clientId).set(fields, {merge: true});
+    } else{
+      console.error("invalid user: " + clientId);
+    }
+  }
+
   getUsers(){
 
     const userId = this.user.uid;
-    const path = `/users`;
-    this.usersObj =  this.db.list(path).snapshotChanges()
-        .pipe(map(fbList => this.fblistToUsers(fbList)));
-    return this.usersObj;
+    const path = `/chatters`;
+    this.chattersRef =  this.afs.collection(path);
+    //.snapshotChanges()
+        // .pipe(map(fbList => this.fblistToUsers(fbList)));
+    return this.chattersRef;
   }
 
   getTimeStamp(){
@@ -85,8 +100,8 @@ export class ChatService {
 
   getMessages() {
     //query to create out message feed binding
-    this.chatMessages =   this.db.list('/messages');
-    return this.chatMessages;
+    this.chatMessagesRef =   this.afs.collection('/messages');
+    return this.chatMessagesRef;
     // return this.chatMessages.snapshotChanges(); // .valueChanges().subscribe();
 
   }
@@ -104,7 +119,7 @@ export class ChatService {
     timeSent? : Date = new Date();
     */
 
-    this.chatMessages.push(<any>{
+    this.chatMessagesRef.add(<any>{
       message: msg,
       timeSent,
       userName : this.userName || "ab",
