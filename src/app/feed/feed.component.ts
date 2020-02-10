@@ -1,5 +1,5 @@
 import { Component, OnInit, OnChanges } from '@angular/core';
-import { ChatService } from '../services/chat.service';
+import { GroupChatService } from '../services/groupchat.service';
 import { Observable } from 'rxjs';
 import { ChatMessage } from '../models/chat-message.model';
 import { AngularFirestoreCollection } from '@angular/fire/firestore';
@@ -17,7 +17,7 @@ export class FeedComponent implements OnInit, OnChanges {
   msgs : ChatMessage[] = [];
 
 
-  constructor(private chatService: ChatService) { 
+  constructor(private GroupChatService: GroupChatService) { 
     
   }
   
@@ -38,9 +38,8 @@ export class FeedComponent implements OnInit, OnChanges {
   
 
   ngOnInit(){
-    this.chatService.getMessages().valueChanges().subscribe(
+    this.GroupChatService.getMessages().valueChanges().subscribe(
       feedMsgs => {
-        debugger;
         this.getModelMsgsArray(feedMsgs);
       }
     );
@@ -48,7 +47,7 @@ export class FeedComponent implements OnInit, OnChanges {
 
   ngOnChanges(){
 
-    this.feed$ = this.chatService.getMessages();
+    this.feed$ = this.GroupChatService.getMessages();
 
   }
 

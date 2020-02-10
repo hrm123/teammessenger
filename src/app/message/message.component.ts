@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ChatService } from '../services/chat.service';
+import { GroupChatService } from '../services/groupchat.service';
 import { AuthService } from '../services/auth.service';
 import { ChatMessage } from '../models/chat-message.model';
 
@@ -18,12 +18,11 @@ export class MessageComponent implements OnInit {
   timeStamp : Date;
   isOwnMessage: boolean;
 
-  constructor(private chatService : ChatService,
+  constructor(private GroupChatService : GroupChatService,
       private authService: AuthService) { }
 
   ngOnInit(chatMessage = this.chatMessage) {
     this.messageData = chatMessage.message;
-    debugger;
     this.timeStamp = chatMessage.timeSent;
     this.userName = chatMessage.userName;
     this.useremail = chatMessage.email;

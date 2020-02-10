@@ -11,7 +11,7 @@ import {AngularFireAuthModule} from '@angular/fire/auth';
 import {environment} from '../environments/environment';
 
 import { AuthService } from './services/auth.service';
-import { ChatService } from './services/chat.service';
+import { GroupChatService } from './services/groupchat.service';
 import { ChatFormComponent } from './chat-form/chat-form.component';
 import { ChatRoomComponent } from './chat-room/chat-room.component';
 import { FeedComponent } from './feed/feed.component';
@@ -48,7 +48,7 @@ import { AngularFireStorageModule } from '@angular/fire/storage';
     AngularFirestoreModule,
     AngularFireStorageModule
   ],
-  providers: [AuthService, ChatService, 
+  providers: [AuthService, GroupChatService, 
     AngularFireModule, AngularFireAuthModule,
     AuthGuardService,
     {provide: LocationStrategy, useClass: PathLocationStrategy} ],

@@ -5,8 +5,7 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { User } from '../models/user.model';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import {AngularFireAuth} from '@angular/fire/auth';
-import { first, map, filter, switchMap} from 'rxjs/operators';
-import {of} from 'rxjs';
+import { first, map, filter } from 'rxjs/operators';
 
 
 @Injectable({
@@ -17,44 +16,13 @@ export class AuthService {
   private user : Observable<fb.User>;
   private authState : any;
   modelUser : User;
-  authUser$ : Observable<User>;
-  authUser1 : User;
-
+  
   constructor(private router: Router,
     private afAuth : AngularFireAuth,
-    private afs: AngularFirestore
+    private afs: AngularFirestore,
+    // private chatService : GroupChatService
     ) { 
       this.user = afAuth.authState;
-      this.afAuth.authState.subscribe(authUser => {
-        if(authUser == null){
-          //logged out
-          this.authUser$ = of(this.fbObjToUser(authUser));
-        } else{
-          this.authUser$ = of(this.fbObjToUser(authUser));
-        }
-      });
-      /*
-      this.authUser$ = this.afAuth.authState.pipe(switchMap( auth => {
-        debugger;
-        return of(this.fbObjToUser(auth));
-       }));
-       */
-    }
-
-    private fbObjToUser(fbObj) : User{
-      debugger;
-      if(fbObj !== null){
-      this.authUser1 = new User();
-      this.authUser1.email = fbObj.email;
-      this.authUser1.uid = fbObj.uid;
-      this.authUser1.status = 'online';
-      } else{
-        if(this.authUser1){
-          this.authUser1.status = 'offline';
-        }
-      }
-
-      return this.authUser1;
     }
 
     authUser(){
@@ -84,7 +52,7 @@ export class AuthService {
     }
     const clientId = this.authState.user.uid;
     if(clientId){
-      // return  this.GroupChatService.getUser(clientId).subscribe( obj => this.convertToUser(obj));
+      // return  this.chatService.getUser(clientId).subscribe( obj => this.convertToUser(obj));
     } else{
       console.error("invalid user: " + clientId);
     }
@@ -103,7 +71,7 @@ export class AuthService {
       status
     };
 
-    // return this.GroupChatService.updateUser(this.currentUserId, data);
+    // return this.chatService.updateUser(this.currentUserId, data);
   }
 
   setUserData(email: string, displayName: string, status: string) : void{
@@ -119,7 +87,7 @@ export class AuthService {
       status
     };
 
-    // this.GroupChatService.updateUser(this.currentUserId, data);
+    // this.chatService.updateUser(this.currentUserId, data);
   }
 
 
@@ -148,7 +116,7 @@ export class AuthService {
           this.authState = user;
           const status = 'online';
           this.setUserData(validEmail, displayName, status);
-          // this.GroupChatService.getUsers();
+          // this.chatService.getUsers();
           
         }).catch(err => console.log(err));
 
@@ -161,11 +129,6 @@ export class AuthService {
 
   signout() {
     try{
-
-      this.afAuth.auth.signOut().then( _ =>{
-        this.router.navigate(['signon'])
-      });
-        return;
 
       /*
       this.afAuth.auth
@@ -222,7 +185,7 @@ export class AuthService {
           // this.usr.password = password;
           // this.usr.username = displayName;
 
-          // this.GroupChatService.getUsers();
+          // this.chatService.getUsers();
           this.router.navigate(['chat']);
         }).catch(err => console.log(err));
 
